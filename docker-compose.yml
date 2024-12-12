@@ -1,0 +1,26 @@
+#Criando rede para os containers se comunicarem entre si
+networks:
+  ecommerce:
+    name: ecommerce
+
+#Declarando serviços
+services:
+  ecommerce:
+    container_name: ecommerce
+    build: ecommerce/.
+    depends_on:
+      - store
+    #portalocal:portadodocker
+    ports:
+      - "8080:8080"
+    networks:
+      - ecommerce
+
+  store:
+    container_name: store
+    build: store/.
+    #portalocal:portadodocker
+    ports:
+      - "8081:8080"
+    networks:
+      - ecommerce

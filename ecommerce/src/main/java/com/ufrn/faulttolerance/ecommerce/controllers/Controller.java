@@ -16,7 +16,7 @@ public class Controller {
 
     @GetMapping
     public String helloWorld() {
-        return restClient.get().uri("http://localhost:8081/hello").retrieve().body(String.class);
+        return restClient.get().uri("http://store:8080/hello").retrieve().body(String.class);
     }
 
 }
