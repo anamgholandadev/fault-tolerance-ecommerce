@@ -24,3 +24,21 @@ services:
       - "8081:8080"
     networks:
       - ecommerce
+
+  fidelity:
+    container_name: fidelity
+    build: fidelity/.
+    #portalocal:portadodocker
+    ports:
+      - "8082:8080"
+    networks:
+      - ecommerce
+
+  exchange:
+    container_name: exchange
+    build: exchange/.
+    #portalocal:portadodocker
+    ports:
+      - "8083:8080"
+    networks:
+      - ecommerce
