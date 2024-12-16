@@ -1,4 +1,4 @@
-package com.ufrn.faulttolerance.store.dto;
+package com.ufrn.faulttolerance.store.model.dto;
 
 public class SellDTO {
     private String id;
