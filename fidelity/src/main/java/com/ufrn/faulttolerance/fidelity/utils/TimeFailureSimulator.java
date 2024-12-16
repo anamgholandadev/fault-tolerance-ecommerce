@@ -1,6 +1,6 @@
 package com.ufrn.faulttolerance.fidelity.utils;
 
-public class FailureSimulator {
+public class TimeFailureSimulator {
 
     private final double failureProbability;
     private final int failureDurationMs;
@@ -8,7 +8,7 @@ public class FailureSimulator {
     private boolean isFailureActive = false;
     private long failureEndTime = 0L;
 
-    public FailureSimulator(double failureProbability, int failureDurationMs, int delayDurationMs) {
+    public TimeFailureSimulator(double failureProbability, int failureDurationMs, int delayDurationMs) {
         this.failureProbability = failureProbability;
         this.failureDurationMs = failureDurationMs;
         this.delayDurationMs = delayDurationMs;

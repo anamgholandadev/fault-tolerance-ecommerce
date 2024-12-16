@@ -1,7 +1,7 @@
 package com.ufrn.faulttolerance.fidelity.services;
 
 import com.ufrn.faulttolerance.fidelity.models.dto.BonusRequestDTO;
-import com.ufrn.faulttolerance.fidelity.utils.FailureSimulator;
+import com.ufrn.faulttolerance.fidelity.utils.TimeFailureSimulator;
 import org.springframework.stereotype.Service;
 
 
@@ -12,17 +12,17 @@ import java.util.Map;
 public class FidelityService {
 
     private final Map<String, Integer> userBonuses = new HashMap<>();
-    private final FailureSimulator failureSimulator;
+    private final TimeFailureSimulator timeFailureSimulator;
 
     public FidelityService() {
-        this.failureSimulator = new FailureSimulator(0.1, 30000, 2000);
+        this.timeFailureSimulator = new TimeFailureSimulator(0.1, 30000, 2000);
     }
 
     public boolean registerBonus(BonusRequestDTO bonusRequestDTO) {
-        if (failureSimulator.shouldTriggerFailure()) {
-            failureSimulator.activateFailure();
+        if (timeFailureSimulator.shouldTriggerFailure()) {
+            timeFailureSimulator.activateFailure();
         }
-        failureSimulator.simulateFailureDelay();
+        timeFailureSimulator.simulateFailureDelay();
 
         userBonuses.put(bonusRequestDTO.getUser(), bonusRequestDTO.getBonus());
         return true;
