@@ -15,11 +15,6 @@ public class FidelityController {
         this.fidelityService = fidelityService;
     }
 
-    @GetMapping
-    public String helloWorld() {
-        return "Hello From Fidelity!";
-    }
-
     @PostMapping("/bonus")
     public ResponseEntity<String> registerBonus(@RequestBody BonusRequestDTO bonusRequestDTO) {
         boolean success = fidelityService.registerBonus(bonusRequestDTO);
