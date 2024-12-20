@@ -35,10 +35,13 @@ services:
       - ecommerce
 
   exchange:
-    container_name: exchange
+    # container_name: exchange
     build: exchange/.
     #portalocal:portadodocker
+    deploy:
+      mode: replicated
+      replicas: 2
     ports:
-      - "8083:8080"
+      - "8083-8084:8080"
     networks:
       - ecommerce

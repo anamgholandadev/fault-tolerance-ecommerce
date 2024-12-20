@@ -10,6 +10,9 @@ public class Product {
         this.name = name;
         this.value = value;
     }
+    public Product() {
+
+    }
 
     public String getId() {
         return id;
