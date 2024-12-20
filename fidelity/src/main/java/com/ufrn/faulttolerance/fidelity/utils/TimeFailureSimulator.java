@@ -1,7 +1,5 @@
 package com.ufrn.faulttolerance.fidelity.utils;
 
-import java.util.Random;
-
 public class TimeFailureSimulator {
 
     private final double failureProbability;
