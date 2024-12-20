@@ -25,7 +25,7 @@ public class StoreController {
             SellDTO sellDTO = serviceStore.saveSell(productDTO);
             return ResponseEntity.ok(sellDTO);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
