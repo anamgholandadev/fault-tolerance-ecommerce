@@ -10,20 +10,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServiceStore {
 
-    private final FailureSimulator timeFailureSimulatorGetProduct;
-    private final FailureSimulator timeFailureSimulatorSell;
+    private final FailureSimulator failureSimulatorGetProduct;
+    private final FailureSimulator failureSimulatorSell;
 
     public ServiceStore() {
-        this.timeFailureSimulatorGetProduct = new FailureSimulator(0.2, 0);
-        this.timeFailureSimulatorSell = new FailureSimulator(0.1, 5000);
+        this.failureSimulatorGetProduct = new FailureSimulator(0.2, 0);
+        this.failureSimulatorSell = new FailureSimulator(0.1, 5000);
     }
 
 
     public SellDTO saveSell(ProductDTO productDTO) throws Exception {
-        if (timeFailureSimulatorSell.shouldTriggerFailure()) {
-            timeFailureSimulatorSell.activateFailure();
+        if (failureSimulatorSell.shouldTriggerFailure()) {
+            failureSimulatorSell.activateFailure();
         }
-        if (timeFailureSimulatorSell.isFailureActive()) {
+        if (failureSimulatorSell.isFailureActive()) {
             throw new Exception();
         }
         var sellDTO = new SellDTO(GenerateRandomIdHelper.generateRandomId());
@@ -32,10 +32,10 @@ public class ServiceStore {
 
 
     public Product getProduct(String id)  {
-        if (timeFailureSimulatorGetProduct.shouldTriggerFailure()) {
-            timeFailureSimulatorGetProduct.activateFailure();
+        if (failureSimulatorGetProduct.shouldTriggerFailure()) {
+            failureSimulatorGetProduct.activateFailure();
         }
-        if (timeFailureSimulatorGetProduct.isFailureActive()) {
+        if (failureSimulatorGetProduct.isFailureActive()) {
             while(true){}
         }
         var product = new Product(GenerateRandomIdHelper.generateRandomId(), "Camiseta", 140);
