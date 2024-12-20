@@ -1,4 +1,4 @@
-package com.ufrn.faulttolerance.store.model;
+package com.ufrn.faulttolerance.ecommerce.model;
 
 public class Product {
     private String id;
@@ -9,6 +9,9 @@ public class Product {
         this.id = id;
         this.name = name;
         this.value = value;
+    }
+    public Product() {
+
     }
 
     public String getId() {

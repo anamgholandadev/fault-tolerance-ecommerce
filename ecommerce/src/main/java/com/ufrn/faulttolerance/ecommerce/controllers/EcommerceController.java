@@ -1,35 +1,23 @@
 package com.ufrn.faulttolerance.ecommerce.controllers;
 
+import com.ufrn.faulttolerance.ecommerce.model.Product;
+import com.ufrn.faulttolerance.ecommerce.model.dto.ProductBuyDTO;
+import com.ufrn.faulttolerance.ecommerce.services.EcommerceService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/ecommerce")
 public class EcommerceController {
-    private final RestClient restClient;
-    private static double lastValidExchangeRate = 7.0;
+    @Autowired
+    private EcommerceService ecommerceService;
 
-    public EcommerceController() {
-        this.restClient = RestClient.create();
+    @PostMapping("/buy")
+    public ResponseEntity<Product> buyProduct(@RequestBody ProductBuyDTO productBuyDTO) {
+      var product = ecommerceService.buyProduct(productBuyDTO);
+      return ResponseEntity.ok(product);
     }
 
-    @GetMapping("/exchange-rate")
-    public ResponseEntity<Double> getExchangeRate() {
-        String url = "http://exchange:8080/exchange";
 
-        try {
-            double rate = restClient.get()
-                    .uri(url)
-                    .retrieve()
-                    .body(Double.class);
-            lastValidExchangeRate = rate;
-            return ResponseEntity.ok(rate);
-        } catch (RestClientException e) {
-            return ResponseEntity.ok(lastValidExchangeRate);
-        }
-    }
 }
