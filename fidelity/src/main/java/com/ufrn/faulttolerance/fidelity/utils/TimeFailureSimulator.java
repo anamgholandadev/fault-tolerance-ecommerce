@@ -9,7 +9,6 @@ public class TimeFailureSimulator {
     private final int delayDurationMs;
     private boolean isFailureActive = false;
     private long failureEndTime = 0L;
-    private final Random random = new Random();
 
     public TimeFailureSimulator(double failureProbability, int failureDurationMs, int delayDurationMs) {
         this.failureProbability = failureProbability;
@@ -25,11 +24,7 @@ public class TimeFailureSimulator {
     }
 
     public boolean shouldTriggerFailure() {
-        if(failureProbability == 0.1) {
-            return random.nextInt(10) == 0;
-        }else{
-          return  random.nextInt(5) == 0;
-        }
+        return Math.random() < failureProbability;
     }
 
     public void activateFailure() {

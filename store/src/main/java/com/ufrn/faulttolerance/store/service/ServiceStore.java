@@ -4,18 +4,18 @@ import com.ufrn.faulttolerance.store.model.Product;
 import com.ufrn.faulttolerance.store.model.dto.ProductDTO;
 import com.ufrn.faulttolerance.store.model.dto.SellDTO;
 import com.ufrn.faulttolerance.store.utils.GenerateRandomIdHelper;
-import com.ufrn.faulttolerance.store.utils.TimeFailureSimulator;
+import com.ufrn.faulttolerance.store.utils.FailureSimulator;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ServiceStore {
 
-    private final TimeFailureSimulator timeFailureSimulatorGetProduct;
-    private final TimeFailureSimulator timeFailureSimulatorSell;
+    private final FailureSimulator timeFailureSimulatorGetProduct;
+    private final FailureSimulator timeFailureSimulatorSell;
 
     public ServiceStore() {
-        this.timeFailureSimulatorGetProduct = new TimeFailureSimulator(0.2, 0, 0);
-        this.timeFailureSimulatorSell = new TimeFailureSimulator(0.1, 5000, 5000);
+        this.timeFailureSimulatorGetProduct = new FailureSimulator(0.2, 0, 0);
+        this.timeFailureSimulatorSell = new FailureSimulator(0.1, 5000, 5000);
     }
 
 
