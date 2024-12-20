@@ -14,8 +14,8 @@ public class ServiceStore {
     private final FailureSimulator timeFailureSimulatorSell;
 
     public ServiceStore() {
-        this.timeFailureSimulatorGetProduct = new FailureSimulator(0.2, 0, 0);
-        this.timeFailureSimulatorSell = new FailureSimulator(0.1, 5000, 5000);
+        this.timeFailureSimulatorGetProduct = new FailureSimulator(0.2, 0);
+        this.timeFailureSimulatorSell = new FailureSimulator(0.1, 5000);
     }
 
 
@@ -31,16 +31,15 @@ public class ServiceStore {
     }
 
 
-    public Product getProduct(String id) throws Exception {
+    public Product getProduct(String id)  {
         if (timeFailureSimulatorGetProduct.shouldTriggerFailure()) {
             timeFailureSimulatorGetProduct.activateFailure();
         }
         if (timeFailureSimulatorGetProduct.isFailureActive()) {
-            throw new Exception();
+            while(true){}
         }
         var product = new Product(GenerateRandomIdHelper.generateRandomId(), "Camiseta", 140);
         return product;
-
     }
 
 }
