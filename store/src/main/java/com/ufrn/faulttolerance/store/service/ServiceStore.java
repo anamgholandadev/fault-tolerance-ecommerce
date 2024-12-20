@@ -50,7 +50,7 @@ public class ServiceStore {
             }
         }
         if (id != null && !id.isEmpty()) {
-            var product = new Product(GenerateRandomIdHelper.generateRandomId(), "Camiseta", 140.60);
+            var product = new Product(GenerateRandomIdHelper.generateRandomId(), "Camiseta", 140);
             return product;
         }else{
             throw new Exception();

@@ -3,9 +3,9 @@ package com.ufrn.faulttolerance.store.model;
 public class Product {
     private String id;
     private String name;
-    private double value;
+    private int value;
 
-    public Product(String id, String name, double value) {
+    public Product(String id, String name, int value) {
         this.id = id;
         this.name = name;
         this.value = value;
@@ -27,11 +27,11 @@ public class Product {
         this.name = name;
     }
 
-    public double getValue() {
+    public int getValue() {
         return value;
     }
 
-    public void setValue(double value) {
+    public void setValue(int value) {
         this.value = value;
     }
 }

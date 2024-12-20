@@ -1,20 +1,23 @@
 package com.ufrn.faulttolerance.ecommerce.services;
 
 import com.ufrn.faulttolerance.ecommerce.model.Product;
+import com.ufrn.faulttolerance.ecommerce.model.dto.BonusRequestDTO;
 import com.ufrn.faulttolerance.ecommerce.model.dto.ProductBuyDTO;
 import com.ufrn.faulttolerance.ecommerce.model.dto.ProductDTO;
 import com.ufrn.faulttolerance.ecommerce.model.dto.SellDTO;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.http.MediaType;
+import org.springframework.web.servlet.function.EntityResponse;
 
 @Service
 public class EcommerceService {
 
     private static double lastValidExchangeRate = 7.0;
 
-    private  RestClient restClient;
+    private RestClient restClient;
 
     public EcommerceService() {
         this.restClient = RestClient.create();
@@ -24,6 +27,7 @@ public class EcommerceService {
         Product product = getProduct(productBuyDTO.getProductId());
         double rate = getExchangeRate();
         SellDTO sellDTO = sellProduct(productBuyDTO);
+        boolean result = getBonus(productBuyDTO.getUserId(), product.getValue());
         return product;
 
     }
@@ -67,6 +71,21 @@ public class EcommerceService {
             return sellDTO;
         } catch (RestClientException e) {
             return new SellDTO("teste");
+        }
+    }
+
+    public boolean getBonus(String user, int bonus) throws RestClientException {
+        String url = "http://localhost:8082/fidelity/bonus";
+        try {
+            BonusRequestDTO bonusRequestDTO = new BonusRequestDTO(user, bonus);
+            ResponseEntity<Void> response =  restClient.post()
+                    .uri(url).contentType(MediaType.APPLICATION_JSON)
+                    .body(bonusRequestDTO)
+                    .retrieve()
+                    .toBodilessEntity();
+            return true;
+        } catch (RestClientException e) {
+            return false;
         }
     }
 }
