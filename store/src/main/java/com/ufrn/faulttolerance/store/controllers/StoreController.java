@@ -25,17 +25,13 @@ public class StoreController {
             SellDTO sellDTO = serviceStore.saveSell(productDTO);
             return ResponseEntity.ok(sellDTO);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/product/{id}")
     public ResponseEntity<Product> product(@PathVariable String id) {
-        try {
-            Product product = serviceStore.getProduct(id);
-            return ResponseEntity.ok(product);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        Product product = serviceStore.getProduct(id);
+        return ResponseEntity.ok(product);
     }
 }
