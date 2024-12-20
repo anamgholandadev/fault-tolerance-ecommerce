@@ -24,7 +24,13 @@ public class FidelityService {
         }
         timeFailureSimulator.simulateFailureDelay();
 
-        userBonuses.put(bonusRequestDTO.getUser(), bonusRequestDTO.getBonus());
+        int newBonus;
+        if (userBonuses.containsKey(bonusRequestDTO.getUser())) {
+            newBonus = userBonuses.get(bonusRequestDTO.getUser()) + bonusRequestDTO.getBonus();
+        } else {
+            newBonus = bonusRequestDTO.getBonus();
+        }
+        userBonuses.put(bonusRequestDTO.getUser(), newBonus);
         return true;
     }
 }
