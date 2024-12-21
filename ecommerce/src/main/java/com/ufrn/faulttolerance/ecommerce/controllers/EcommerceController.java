@@ -10,14 +10,20 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/ecommerce")
 public class EcommerceController {
-    @Autowired
-    private EcommerceService ecommerceService;
+  @Autowired
+  private EcommerceService ecommerceService;
 
-    @PostMapping("/buy")
-    public ResponseEntity<Product> buyProduct(@RequestBody ProductBuyDTO productBuyDTO) {
-      var product = ecommerceService.buyProduct(productBuyDTO);
-      return ResponseEntity.ok(product);
-    }
+  @PostMapping("/buy")
+  public ResponseEntity<Product> buyProduct(@RequestBody ProductBuyDTO productBuyDTO) {
+    var product = ecommerceService.buyProduct(productBuyDTO);
+    return ResponseEntity.ok(product);
+  }
 
+  @GetMapping("/exchange-rate")
+  public ResponseEntity<Double> getExchangeRate() {
+    var exchangeRate = ecommerceService.getExchangeRate();
+
+    return ResponseEntity.ok(exchangeRate);
+  }
 
 }

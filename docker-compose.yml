@@ -1,7 +1,7 @@
 #Criando rede para os containers se comunicarem entre si
 networks:
   ecommerce:
-    name: ecommerce
+    driver: bridge
 
 #Declarando serviços
 services:
@@ -34,14 +34,18 @@ services:
     networks:
       - ecommerce
 
-  exchange:
-    # container_name: exchange
+  exchange1:
     build: exchange/.
-    #portalocal:portadodocker
-    deploy:
-      mode: replicated
-      replicas: 2
+    container_name: exchange1
     ports:
-      - "8083-8084:8080"
+      - "8083:8080"
+    networks:
+      - ecommerce
+
+  exchange2:
+    build: exchange/.
+    container_name: exchange2
+    ports:
+      - "8084:8080"
     networks:
       - ecommerce
