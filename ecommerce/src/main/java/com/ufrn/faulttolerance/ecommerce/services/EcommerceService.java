@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.http.MediaType;
-import org.springframework.web.servlet.function.EntityResponse;
 
 @Service
 public class EcommerceService {
@@ -33,16 +32,28 @@ public class EcommerceService {
     }
 
     public Double getExchangeRate() {
-        String url = "http://localhost:8081/exchange";
+        String urlPrimary = "http://exchange1:8080/exchange";
+        String urlSecondary = "http://exchange2:8080/exchange";
+
         try {
-            double rate = restClient.get()
-                    .uri(url)
+            Double rate = restClient.get()
+                    .uri(urlPrimary)
                     .retrieve()
                     .body(Double.class);
             lastValidExchangeRate = rate;
             return rate;
-        } catch (RestClientException e) {
-            return lastValidExchangeRate;
+        } catch (RestClientException primaryFailure) {
+            try {
+                Double rate = restClient.get()
+                        .uri(urlSecondary)
+                        .retrieve()
+                        .body(Double.class);
+                lastValidExchangeRate = rate;
+                return rate;
+            } catch (RestClientException secondaryFailure) {
+                return lastValidExchangeRate;
+
+            }
         }
     }
 
@@ -78,7 +89,7 @@ public class EcommerceService {
         String url = "http://localhost:8082/fidelity/bonus";
         try {
             BonusRequestDTO bonusRequestDTO = new BonusRequestDTO(user, bonus);
-            ResponseEntity<Void> response =  restClient.post()
+            ResponseEntity<Void> response = restClient.post()
                     .uri(url).contentType(MediaType.APPLICATION_JSON)
                     .body(bonusRequestDTO)
                     .retrieve()
