@@ -6,7 +6,6 @@ import com.ufrn.faulttolerance.ecommerce.services.EcommerceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestClientException;
 
 @RestController
 @RequestMapping("/ecommerce")

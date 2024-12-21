@@ -9,9 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
-import org.springframework.web.servlet.function.EntityResponse;
 
 @Service
 public class EcommerceService {
@@ -33,24 +31,28 @@ public class EcommerceService {
 
     }
 
-    @Cacheable(value = "exchangeRates", key = "'lastValidRate'")
     public Double getExchangeRate() {
         String urlPrimary = "http://exchange1:8080/exchange";
         String urlSecondary = "http://exchange2:8080/exchange";
 
         try {
-            return restClient.get()
+            Double rate = restClient.get()
                     .uri(urlPrimary)
                     .retrieve()
                     .body(Double.class);
+            lastValidExchangeRate = rate;
+            return rate;
         } catch (RestClientException primaryFailure) {
             try {
-                return restClient.get()
+                Double rate = restClient.get()
                         .uri(urlSecondary)
                         .retrieve()
                         .body(Double.class);
+                lastValidExchangeRate = rate;
+                return rate;
             } catch (RestClientException secondaryFailure) {
-                throw new RuntimeException("Both replicas failed, using last cached rate.");
+                return lastValidExchangeRate;
+
             }
         }
     }
