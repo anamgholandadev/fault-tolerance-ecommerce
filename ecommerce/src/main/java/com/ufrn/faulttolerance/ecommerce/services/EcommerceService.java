@@ -42,7 +42,7 @@ public class EcommerceService {
     public SellDTO buyProduct(ProductBuyDTO productBuyDTO) throws RestClientException {
         setTimeout(productBuyDTO.isFt());
         Product product = getProduct(productBuyDTO.getProductId());
-        double rate = getExchangeRate();
+        double rate = shouldUseToleranceExchange(productBuyDTO.isFt());
         SellDTO sellDTO = shouldUseCB(productBuyDTO);
         boolean result = getBonus(productBuyDTO.getUserId(), product.getValue());
         return sellDTO;
@@ -83,23 +83,17 @@ public class EcommerceService {
         }
     }
 
-    public Double getExchangeRate() {
+    public Double getExchangeRateWithTolerance() {
         String urlPrimary = "http://exchange1:8080/exchange";
         String urlSecondary = "http://exchange2:8080/exchange";
 
         try {
-            Double rate = restClient.get()
-                    .uri(urlPrimary)
-                    .retrieve()
-                    .body(Double.class);
+            Double rate = getExchangeRate(urlPrimary);
             lastValidExchangeRate = rate;
             return rate;
         } catch (RestClientException primaryFailure) {
             try {
-                Double rate = restClient.get()
-                        .uri(urlSecondary)
-                        .retrieve()
-                        .body(Double.class);
+                Double rate = getExchangeRate(urlSecondary);
                 lastValidExchangeRate = rate;
                 return rate;
             } catch (RestClientException secondaryFailure) {
@@ -107,6 +101,21 @@ public class EcommerceService {
 
             }
         }
+    }
+
+    private Double shouldUseToleranceExchange(boolean ft) {
+        if (ft) {
+            return getExchangeRateWithTolerance();
+        } else {
+            return getExchangeRate("http://exchange1:8080/exchange");
+        }
+    }
+
+    private Double getExchangeRate(String url) {
+        return restClient.get()
+                .uri(url)
+                .retrieve()
+                .body(Double.class);
     }
 
     public Product getProduct(String productId) throws RestClientException {
