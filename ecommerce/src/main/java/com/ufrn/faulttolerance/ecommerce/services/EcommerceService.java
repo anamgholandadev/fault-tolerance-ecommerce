@@ -43,7 +43,7 @@ public class EcommerceService {
         this.circuitBreaker = registry.circuitBreaker("circuitBreaker-ecommerce-store");
     }
 
-    public SellDTO buyProduct(ProductBuyDTO productBuyDTO) throws RestClientException, Throwable {
+    public SellDTO buyProduct(ProductBuyDTO productBuyDTO) throws RestClientException {
         setTimeout(productBuyDTO.isFt());
         Product product = shouldRetryProduct(productBuyDTO);
         double rate = shouldUseToleranceExchange(productBuyDTO.isFt());
@@ -52,16 +52,21 @@ public class EcommerceService {
         return sellDTO;
     }
 
-    private Product shouldRetryProduct(ProductBuyDTO productBuyDTO) throws Throwable {
+    private Product shouldRetryProduct(ProductBuyDTO productBuyDTO) {
         if (productBuyDTO.isFt()) {
             RetryConfig config = RetryConfig.custom()
-                    .maxAttempts(3)
-                    .retryOnException(e -> e instanceof RestClientException).build();
+                    .maxAttempts(3).retryOnException(e -> e instanceof RestClientException)
+
+                    .build();
             RetryRegistry registry = RetryRegistry.of(config);
             Retry retry = registry.retry("ommission-fault-store");
             CheckedSupplier<Product> decoratedSupplier = Retry.decorateCheckedSupplier(retry,
                     () -> getProduct(productBuyDTO.getProductId()));
-            return decoratedSupplier.get();
+            try {
+                return decoratedSupplier.get();
+            } catch (Throwable e) {
+                throw new RuntimeException("Erro após tentativas de retry", e);
+            }
         } else {
             return getProduct(productBuyDTO.getProductId());
         }
@@ -138,7 +143,7 @@ public class EcommerceService {
     }
 
     public Product getProduct(String productId) throws RestClientException {
-        String url = "http://localhost:8083/store/product/" + productId;
+        String url = "http://store:8080/store/product/" + productId;
         Product product = restClient.get()
                 .uri(url)
                 .retrieve()
@@ -147,7 +152,7 @@ public class EcommerceService {
     }
 
     public SellDTO sellProduct(ProductBuyDTO productBuyDTO) throws RestClientException {
-        String url = "http://localhost:8083/store/sell";
+        String url = "http://store:8080/store/sell";
         ProductDTO productDTO = new ProductDTO(productBuyDTO.getProductId());
         SellDTO sellDTO = restClient.post()
                 .uri(url).contentType(MediaType.APPLICATION_JSON)
@@ -158,7 +163,7 @@ public class EcommerceService {
     }
 
     public boolean getBonus(String user, int bonus) throws RestClientException {
-        String url = "http://localhost:8082/fidelity/bonus";
+        String url = "http://fidelity:8080/fidelity/bonus";
         try {
             BonusRequestDTO bonusRequestDTO = new BonusRequestDTO(user, bonus);
             ResponseEntity<Void> response = restClient.post()
@@ -168,6 +173,7 @@ public class EcommerceService {
                     .toBodilessEntity();
             return true;
         } catch (RestClientException e) {
+            e.printStackTrace();
             return false;
         }
     }
