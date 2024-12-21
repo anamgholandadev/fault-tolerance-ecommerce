@@ -38,7 +38,7 @@ public class ServiceStore {
         if (failureSimulatorGetProduct.isFailureActive()) {
             while(true){}
         }
-        var product = new Product(GenerateRandomIdHelper.generateRandomId(), "Camiseta", 140);
+        var product = new Product(id, "Camiseta", 140);
         return product;
     }
 
