@@ -33,25 +33,22 @@ public class EcommerceService {
 
     }
 
-    @Cacheable(value = "exchangeRates", key = "'lastValidRate'")
+    // @Cacheable(value = "exchangeRates", key = "'lastValidRate'")
     public Double getExchangeRate() {
-        String urlPrimary = "http://exchange1:8080/exchange";
-        String urlSecondary = "http://exchange2:8080/exchange";
+        String url = "http://exchange:8080/exchange";
 
         try {
-            return restClient.get()
-                    .uri(urlPrimary)
+            double rate = restClient.get()
+                    .uri(url)
                     .retrieve()
                     .body(Double.class);
-        } catch (RestClientException primaryFailure) {
-            try {
-                return restClient.get()
-                        .uri(urlSecondary)
-                        .retrieve()
-                        .body(Double.class);
-            } catch (RestClientException secondaryFailure) {
-                throw new RuntimeException("Both replicas failed, using last cached rate.");
-            }
+
+            lastValidExchangeRate = rate;
+
+            return rate;
+        } catch (RestClientException e) {
+            System.out.println("Both replicas failed, using last cached rate.");
+            return lastValidExchangeRate;
         }
     }
 

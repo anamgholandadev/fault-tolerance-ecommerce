@@ -1,51 +1,45 @@
-#Criando rede para os containers se comunicarem entre si
-networks:
-  ecommerce:
-    driver: bridge
+version: '3.8'
 
-#Declarando serviços
 services:
   ecommerce:
-    container_name: ecommerce
-    build: ecommerce/.
-    depends_on:
-      - store
-    #portalocal:portadodocker
+    image: ecommerce-image:latest
     ports:
       - "8080:8080"
+    depends_on:
+      - store
+      - exchange
     networks:
       - ecommerce
 
   store:
-    container_name: store
-    build: store/.
-    #portalocal:portadodocker
+    image: store-image:latest
     ports:
       - "8081:8080"
     networks:
       - ecommerce
 
   fidelity:
-    container_name: fidelity
-    build: fidelity/.
-    #portalocal:portadodocker
+    image: fidelity-image:latest
     ports:
       - "8082:8080"
     networks:
       - ecommerce
 
-  exchange1:
-    build: exchange/.
-    container_name: exchange1
+  exchange:
+    image: fault-tolerance-ecommerce-exchange:latest
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
     ports:
       - "8083:8080"
     networks:
       - ecommerce
 
-  exchange2:
-    build: exchange/.
-    container_name: exchange2
-    ports:
-      - "8084:8080"
-    networks:
-      - ecommerce
+networks:
+  ecommerce:
+    driver: overlay
