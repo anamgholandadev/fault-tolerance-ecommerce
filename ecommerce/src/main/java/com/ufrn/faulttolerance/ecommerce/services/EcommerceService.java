@@ -84,16 +84,28 @@ public class EcommerceService {
     }
 
     public Double getExchangeRate() {
-        String url = "http://localhost:8081/exchange";
+        String urlPrimary = "http://exchange1:8080/exchange";
+        String urlSecondary = "http://exchange2:8080/exchange";
+
         try {
-            double rate = restClient.get()
-                    .uri(url)
+            Double rate = restClient.get()
+                    .uri(urlPrimary)
                     .retrieve()
                     .body(Double.class);
             lastValidExchangeRate = rate;
             return rate;
-        } catch (RestClientException e) {
-            return lastValidExchangeRate;
+        } catch (RestClientException primaryFailure) {
+            try {
+                Double rate = restClient.get()
+                        .uri(urlSecondary)
+                        .retrieve()
+                        .body(Double.class);
+                lastValidExchangeRate = rate;
+                return rate;
+            } catch (RestClientException secondaryFailure) {
+                return lastValidExchangeRate;
+
+            }
         }
     }
 

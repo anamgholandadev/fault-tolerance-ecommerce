@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/ecommerce")
 public class EcommerceController {
-    @Autowired
-    private EcommerceService ecommerceService;
+  @Autowired
+  private EcommerceService ecommerceService;
 
     @PostMapping("/buy")
     public ResponseEntity<SellDTO> buyProduct(@RequestBody ProductBuyDTO productBuyDTO) {
