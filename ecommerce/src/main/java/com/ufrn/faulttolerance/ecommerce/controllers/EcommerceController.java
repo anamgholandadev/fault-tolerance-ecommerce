@@ -7,6 +7,7 @@ import com.ufrn.faulttolerance.ecommerce.services.EcommerceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientException;
 
 @RestController
 @RequestMapping("/ecommerce")
@@ -14,10 +15,16 @@ public class EcommerceController {
   @Autowired
   private EcommerceService ecommerceService;
 
-    @PostMapping("/buy")
-    public ResponseEntity<SellDTO> buyProduct(@RequestBody ProductBuyDTO productBuyDTO) {
-      var product = ecommerceService.buyProduct(productBuyDTO);
-      return ResponseEntity.ok(product);
+  @PostMapping("/buy")
+  public ResponseEntity<Void> buyProduct(@RequestBody ProductBuyDTO productBuyDTO) {
+    try {
+      ecommerceService.buyProduct(productBuyDTO);
+    } catch (RestClientException e) {
+      ResponseEntity.internalServerError();
+    } catch (Throwable e) {
+      ResponseEntity.internalServerError();
     }
+    return ResponseEntity.ok().build();
+  }
 
 }

@@ -8,13 +8,17 @@ import com.ufrn.faulttolerance.ecommerce.model.dto.SellDTO;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.core.functions.CheckedSupplier;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryConfig;
+import io.github.resilience4j.retry.RetryRegistry;
+
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.http.MediaType;
-
 
 import java.time.Duration;
 import java.util.function.Function;
@@ -33,19 +37,34 @@ public class EcommerceService {
         CircuitBreakerConfig config = CircuitBreakerConfig.custom()
                 .failureRateThreshold(100) // 100% das falhas
                 .minimumNumberOfCalls(1) // Considera uma falha após uma chamada
-                .waitDurationInOpenState(Duration.ofSeconds(30)) //Tempo de espera em estado aberto
+                .waitDurationInOpenState(Duration.ofSeconds(30)) // Tempo de espera em estado aberto
                 .build();
         CircuitBreakerRegistry registry = CircuitBreakerRegistry.of(config);
         this.circuitBreaker = registry.circuitBreaker("circuitBreaker-ecommerce-store");
     }
 
-    public SellDTO buyProduct(ProductBuyDTO productBuyDTO) throws RestClientException {
+    public SellDTO buyProduct(ProductBuyDTO productBuyDTO) throws RestClientException, Throwable {
         setTimeout(productBuyDTO.isFt());
-        Product product = getProduct(productBuyDTO.getProductId());
+        Product product = shouldRetryProduct(productBuyDTO);
         double rate = shouldUseToleranceExchange(productBuyDTO.isFt());
         SellDTO sellDTO = shouldUseCB(productBuyDTO);
         boolean result = getBonus(productBuyDTO.getUserId(), product.getValue());
         return sellDTO;
+    }
+
+    private Product shouldRetryProduct(ProductBuyDTO productBuyDTO) throws Throwable {
+        if (productBuyDTO.isFt()) {
+            RetryConfig config = RetryConfig.custom()
+                    .maxAttempts(3)
+                    .retryOnException(e -> e instanceof RestClientException).build();
+            RetryRegistry registry = RetryRegistry.of(config);
+            Retry retry = registry.retry("ommission-fault-store");
+            CheckedSupplier<Product> decoratedSupplier = Retry.decorateCheckedSupplier(retry,
+                    () -> getProduct(productBuyDTO.getProductId()));
+            return decoratedSupplier.get();
+        } else {
+            return getProduct(productBuyDTO.getProductId());
+        }
     }
 
     private void setTimeout(boolean ft) {
@@ -73,7 +92,7 @@ public class EcommerceService {
                         var sellDTO = sellProduct(productBuyDTO);
                         return sellDTO;
                     } catch (RestClientException e) {
-                        throw e;  // Propaga a exceção para o Circuit Breaker monitorar
+                        throw e; // Propaga a exceção para o Circuit Breaker monitorar
                     }
                 }).unchecked();
         try {
