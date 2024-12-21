@@ -43,7 +43,7 @@ public class EcommerceService {
         this.circuitBreaker = registry.circuitBreaker("circuitBreaker-ecommerce-store");
     }
 
-    public SellDTO buyProduct(ProductBuyDTO productBuyDTO) throws RestClientException, Throwable {
+    public SellDTO buyProduct(ProductBuyDTO productBuyDTO) throws RestClientException {
         setTimeout(productBuyDTO.isFt());
         Product product = shouldRetryProduct(productBuyDTO);
         double rate = shouldUseToleranceExchange(productBuyDTO.isFt());
@@ -52,16 +52,21 @@ public class EcommerceService {
         return sellDTO;
     }
 
-    private Product shouldRetryProduct(ProductBuyDTO productBuyDTO) throws Throwable {
+    private Product shouldRetryProduct(ProductBuyDTO productBuyDTO) {
         if (productBuyDTO.isFt()) {
             RetryConfig config = RetryConfig.custom()
                     .maxAttempts(3)
-                    .retryOnException(e -> e instanceof RestClientException).build();
+                    .retryOnException(e -> e instanceof RestClientException)
+                    .build();
             RetryRegistry registry = RetryRegistry.of(config);
             Retry retry = registry.retry("ommission-fault-store");
             CheckedSupplier<Product> decoratedSupplier = Retry.decorateCheckedSupplier(retry,
                     () -> getProduct(productBuyDTO.getProductId()));
-            return decoratedSupplier.get();
+            try {
+                return decoratedSupplier.get();
+            } catch (Throwable e) {
+                throw new RuntimeException("Erro após tentativas de retry", e);
+            }
         } else {
             return getProduct(productBuyDTO.getProductId());
         }
@@ -117,7 +122,6 @@ public class EcommerceService {
                 return rate;
             } catch (RestClientException secondaryFailure) {
                 return lastValidExchangeRate;
-
             }
         }
     }
