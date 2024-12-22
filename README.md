@@ -16,11 +16,15 @@ Este projeto implementa um sistema de e-commerce com componentes projetados para
 
 Para construir os containers, no diretório raiz do projeto execute o comando:
 
-`docker compose build`
+```
+docker compose build
+```
 
 Para subir os containers:
 
-`docker compose up`
+```
+docker compose up
+```
 
 Todos os serviços serão iniciados e conectados à rede ecommerce. 
 
@@ -32,7 +36,8 @@ O fluxo inteiro pode ser executado a partir da chamada do ecommerce para o endpo
 
 Segue o CURL:
 
-```curl --request POST \
+```
+curl --request POST \
   --url http://localhost:8080/ecommerce/buy \
   --header 'Content-Type: application/json' \
   --header 'User-Agent: insomnia/9.3.0' \
@@ -40,48 +45,60 @@ Segue o CURL:
     "productId":"1",
     "userId": "2",
     "ft": true
-}'``       
+}'
+```     
 
 ## É possível também testar localmente de forma individual as requisições com base nas portas configuradas no docker compose 
 
 Segue os CURLs:
 
 ## Requisição 1
-`curl --request GET \
+```
+curl --request GET \
   --url http://localhost:8081/store/product/1 \
-  --header 'User-Agent: insomnia/9.3.0'`
+  --header 'User-Agent: insomnia/9.3.0'
+```
 
 ## Requisição 2
 Réplica 1:
-`curl --request GET \
+```
+curl --request GET \
   --url http://localhost:8083/exchange \
-  --header 'User-Agent: insomnia/9.3.0'`
+  --header 'User-Agent: insomnia/9.3.0'
+```
 
 Réplica 2:
-`curl --request GET \
+```
+curl --request GET \
   --url http://localhost:8083/exchange \
-  --header 'User-Agent: insomnia/9.3.0'`
+  --header 'User-Agent: insomnia/9.3.0'
+```
 
 ## Requisição 3
 
-`curl --request POST \
+```
+curl --request POST \
   --url http://localhost:8081/store/sell \
   --header 'Content-Type: application/json' \
   --header 'User-Agent: insomnia/9.3.0' \
   --data '{
 	"id": "1"
-}'`       
+}'
+```       
 
 ## Requisição 4
-`curl --request POST \
+```
+curl --request POST \
   --url http://localhost:8082/fidelity/bonus \
   --header 'Content-Type: application/json' \
   --header 'User-Agent: insomnia/9.3.0' \
   --data '{
 	"user": "2",
 	"bonus": 140
-}'`
-
+}'
+```
 
 # Para desligar os containers:
-`docker compose down`
+```
+docker compose down
+```
