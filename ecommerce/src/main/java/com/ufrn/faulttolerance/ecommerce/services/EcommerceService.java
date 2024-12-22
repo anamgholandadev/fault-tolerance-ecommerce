@@ -34,9 +34,9 @@ public class EcommerceService {
     public EcommerceService(RequestQueueService queueService) {
         this.restClient = RestClient.create();
         CircuitBreakerConfig config = CircuitBreakerConfig.custom()
-                .failureRateThreshold(100) // 100% das falhas
-                .minimumNumberOfCalls(1) // Considera uma falha após uma chamada
-                .waitDurationInOpenState(Duration.ofSeconds(30)) // Tempo de espera em estado aberto
+                .failureRateThreshold(100)
+                .minimumNumberOfCalls(1)
+                .waitDurationInOpenState(Duration.ofSeconds(30))
                 .build();
         CircuitBreakerRegistry registry = CircuitBreakerRegistry.of(config);
         this.circuitBreaker = registry.circuitBreaker("circuitBreaker-ecommerce-store");
@@ -95,12 +95,12 @@ public class EcommerceService {
                         var sellDTO = sellProduct(productBuyDTO);
                         return sellDTO;
                     } catch (RestClientException e) {
-                        throw e; // Propaga a exceção para o Circuit Breaker monitorar
+                        throw e;
                     }
                 }).unchecked();
         try {
             return decoratedSupplier.get();
-        } catch (Exception e) { // Caso o Circuit Breaker esteja aberto ou o tempo limite seja atingido
+        } catch (Exception e) {
             throw new RuntimeException("Erro após tentativas de circuit breaker", e);
         }
     }
@@ -173,7 +173,7 @@ public class EcommerceService {
 
         } catch (Exception e) {
             if (ft) {
-            queueService.enqueue(new BonusRequestDTO(user, bonus));
+                queueService.enqueue(new BonusRequestDTO(user, bonus));
             } else {
                 queueService.clear();
             }
