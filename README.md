@@ -29,7 +29,7 @@ docker compose up
 Todos os serviços serão iniciados e conectados à rede ecommerce. 
 
 # Para testar:
-Utilize a ferramenta CURL, os códigos podem ser importados no Postman ou Insomia para enviar as requisições aos endpoints.
+Utilize a ferramenta CURL, os códigos podem ser importados no Postman ou Insomnia para enviar as requisições aos endpoints.
 
 ## Requisição 0
 O fluxo inteiro pode ser executado a partir da chamada do ecommerce para o endpoint buy, a partir dele são feitas de forma consecutiva as chamadas para os endpoints de store, exchange e fidelity. Como está configurado no docker compose, o acesso ao serviço ecommerce é feito via porta 8080. 
