@@ -40,7 +40,7 @@ Segue o CURL:
     "productId":"1",
     "userId": "2",
     "ft": true
-}'```       
+}'``       
 
 ## É possível também testar localmente de forma individual as requisições com base nas portas configuradas no docker compose 
 
