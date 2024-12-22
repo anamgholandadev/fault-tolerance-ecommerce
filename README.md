@@ -32,7 +32,7 @@ O fluxo inteiro pode ser executado a partir da chamada do ecommerce para o endpo
 
 Segue o CURL:
 
-`curl --request POST \
+```curl --request POST \
   --url http://localhost:8080/ecommerce/buy \
   --header 'Content-Type: application/json' \
   --header 'User-Agent: insomnia/9.3.0' \
@@ -40,7 +40,7 @@ Segue o CURL:
     "productId":"1",
     "userId": "2",
     "ft": true
-}'`       
+}'```       
 
 ## É possível também testar localmente de forma individual as requisições com base nas portas configuradas no docker compose 
 
