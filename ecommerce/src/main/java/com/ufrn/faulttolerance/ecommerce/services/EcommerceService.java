@@ -12,16 +12,14 @@ import io.github.resilience4j.core.functions.CheckedSupplier;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
-
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-import org.springframework.http.MediaType;
 
 import java.time.Duration;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Service
@@ -31,8 +29,9 @@ public class EcommerceService {
 
     private RestClient restClient;
     private CircuitBreaker circuitBreaker;
+    private RequestQueueService queueService;
 
-    public EcommerceService() {
+    public EcommerceService(RequestQueueService queueService) {
         this.restClient = RestClient.create();
         CircuitBreakerConfig config = CircuitBreakerConfig.custom()
                 .failureRateThreshold(100) // 100% das falhas
@@ -41,25 +40,24 @@ public class EcommerceService {
                 .build();
         CircuitBreakerRegistry registry = CircuitBreakerRegistry.of(config);
         this.circuitBreaker = registry.circuitBreaker("circuitBreaker-ecommerce-store");
+        this.queueService = queueService;
     }
 
-    public SellDTO buyProduct(ProductBuyDTO productBuyDTO) throws RestClientException {
+    public void buyProduct(ProductBuyDTO productBuyDTO) throws Exception {
         setTimeout(productBuyDTO.isFt());
         Product product = shouldRetryProduct(productBuyDTO);
-        double rate = shouldUseToleranceExchange(productBuyDTO.isFt());
-        SellDTO sellDTO = shouldUseCB(productBuyDTO);
-        boolean result = getBonus(productBuyDTO.getUserId(), product.getValue());
-        return sellDTO;
+        shouldUseToleranceExchange(productBuyDTO.isFt());
+        shouldUseCB(productBuyDTO);
+        getBonus(productBuyDTO.getUserId(), 10, productBuyDTO.isFt());
     }
 
     private Product shouldRetryProduct(ProductBuyDTO productBuyDTO) {
         if (productBuyDTO.isFt()) {
             RetryConfig config = RetryConfig.custom()
                     .maxAttempts(3).retryOnException(e -> e instanceof RestClientException)
-
                     .build();
             RetryRegistry registry = RetryRegistry.of(config);
-            Retry retry = registry.retry("ommission-fault-store");
+            Retry retry = registry.retry("omission-fault-store");
             CheckedSupplier<Product> decoratedSupplier = Retry.decorateCheckedSupplier(retry,
                     () -> getProduct(productBuyDTO.getProductId()));
             try {
@@ -102,8 +100,8 @@ public class EcommerceService {
                 }).unchecked();
         try {
             return decoratedSupplier.get();
-        } catch (Exception e) {// Caso o Circuit Breaker esteja aberto ou o tempo limite seja atingido
-            return new SellDTO("teste");
+        } catch (Exception e) { // Caso o Circuit Breaker esteja aberto ou o tempo limite seja atingido
+            throw new RuntimeException("Erro após tentativas de circuit breaker", e);
         }
     }
 
@@ -162,19 +160,24 @@ public class EcommerceService {
         return sellDTO;
     }
 
-    public boolean getBonus(String user, int bonus) throws RestClientException {
-        String url = "http://fidelity:8080/fidelity/bonus";
+    public void getBonus(String user, int bonus, boolean ft) {
         try {
             BonusRequestDTO bonusRequestDTO = new BonusRequestDTO(user, bonus);
+            String url = "http://fidelity:8080/fidelity/bonus";
+
             ResponseEntity<Void> response = restClient.post()
                     .uri(url).contentType(MediaType.APPLICATION_JSON)
                     .body(bonusRequestDTO)
                     .retrieve()
                     .toBodilessEntity();
-            return true;
-        } catch (RestClientException e) {
+
+        } catch (Exception e) {
+            if (ft) {
+            queueService.enqueue(new BonusRequestDTO(user, bonus));
+            } else {
+                queueService.clear();
+            }
             e.printStackTrace();
-            return false;
         }
     }
 }

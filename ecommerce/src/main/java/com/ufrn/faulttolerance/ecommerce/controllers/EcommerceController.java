@@ -26,7 +26,7 @@ public class EcommerceController {
     try {
       ecommerceService.buyProduct(productBuyDTO);
       return ResponseEntity.ok().build();
-    } catch (RestClientException e) {
+    } catch (Exception e) {
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
