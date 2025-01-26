@@ -26,6 +26,8 @@ import java.util.function.Supplier;
 public class EcommerceService {
 
     private static double lastValidExchangeRate = 7.0;
+    private static Product lastProduct = new Product("1", "1", 1);
+    private static SellDTO lastSell = new SellDTO("1");
 
     private RestClient restClient;
     private CircuitBreaker circuitBreaker;
@@ -61,9 +63,10 @@ public class EcommerceService {
             CheckedSupplier<Product> decoratedSupplier = Retry.decorateCheckedSupplier(retry,
                     () -> getProduct(productBuyDTO.getProductId()));
             try {
-                return decoratedSupplier.get();
+                lastProduct = decoratedSupplier.get();
+                return lastProduct;
             } catch (Throwable e) {
-                throw new RuntimeException("Erro após tentativas de retry", e);
+                return lastProduct;
             }
         } else {
             return getProduct(productBuyDTO.getProductId());
@@ -93,6 +96,7 @@ public class EcommerceService {
                 .decorateCheckedSupplier(circuitBreaker, () -> {
                     try {
                         var sellDTO = sellProduct(productBuyDTO);
+                        lastSell = sellDTO;
                         return sellDTO;
                     } catch (RestClientException e) {
                         throw e;
@@ -101,7 +105,7 @@ public class EcommerceService {
         try {
             return decoratedSupplier.get();
         } catch (Exception e) {
-            throw new RuntimeException("Erro após tentativas de circuit breaker", e);
+            return lastSell;
         }
     }
 
@@ -120,7 +124,6 @@ public class EcommerceService {
                 return rate;
             } catch (RestClientException secondaryFailure) {
                 return lastValidExchangeRate;
-
             }
         }
     }
