@@ -102,3 +102,13 @@ curl --request POST \
 ```
 docker compose down
 ```
+
+# Testes de desempenho
+
+Dentro da pasta `perfomance_test`, há scripts que realizam testes de desempenho. Para executá-los, rode o comando abaixo.
+
+```
+k6 run nome_do_script.js
+```
+
+Caso não tenha o k6 instalado na máquina, [acesse aqui o tutorial](https://grafana.com/docs/k6/latest/set-up/install-k6/).
